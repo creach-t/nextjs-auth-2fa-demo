@@ -1,24 +1,13 @@
 {
   "name": "nextjs-auth-2fa-demo",
   "version": "1.0.0",
-  "private": true,
   "description": "Démonstration complète d'un système d'authentification Next.js avec authentification à deux facteurs (A2F) par email",
-  "keywords": [
-    "nextjs",
-    "authentication",
-    "2fa",
-    "two-factor-authentication",
-    "security",
-    "typescript",
-    "tailwindcss",
-    "prisma",
-    "jwt",
-    "email-verification"
-  ],
+  "private": true,
   "author": {
     "name": "CREACH-T",
     "url": "https://github.com/creach-t"
   },
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/creach-t/nextjs-auth-2fa-demo.git"
@@ -27,11 +16,19 @@
     "url": "https://github.com/creach-t/nextjs-auth-2fa-demo/issues"
   },
   "homepage": "https://github.com/creach-t/nextjs-auth-2fa-demo#readme",
-  "license": "MIT",
-  "engines": {
-    "node": ">=18.17.0",
-    "npm": ">=9.0.0"
-  },
+  "keywords": [
+    "nextjs",
+    "authentication",
+    "2fa",
+    "two-factor-authentication",
+    "typescript",
+    "prisma",
+    "tailwindcss",
+    "security",
+    "jwt",
+    "email",
+    "demo"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -39,18 +36,33 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "type-check": "tsc --noEmit",
-    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "format": "prettier --write \"**/*.{js,ts,jsx,tsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{js,ts,jsx,tsx,json,md}\"",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "db:migrate": "prisma migrate dev",
-    "db:reset": "prisma migrate reset",
     "db:seed": "tsx prisma/seed.ts",
-    "clean": "rm -rf .next && rm -rf dist",
-    "analyze": "ANALYZE=true npm run build",
+    "db:reset": "prisma db push --force-reset",
+    "build:analyze": "ANALYZE=true npm run build",
+    "build:standalone": "BUILD_STANDALONE=true npm run build",
+    "deploy": "chmod +x scripts/deploy.sh && ./scripts/deploy.sh",
+    "deploy:build": "chmod +x scripts/deploy.sh && ./scripts/deploy.sh build",
+    "deploy:health": "chmod +x scripts/deploy.sh && ./scripts/deploy.sh health",
+    "docker:build": "docker build -t nextjs-auth-2fa-demo .",
+    "docker:run": "docker run -p 3000:3000 nextjs-auth-2fa-demo",
+    "docker:compose": "docker-compose up -d",
+    "docker:compose:build": "docker-compose up -d --build",
+    "docker:compose:down": "docker-compose down",
+    "pm2:start": "pm2 start ecosystem.config.js --env production",
+    "pm2:stop": "pm2 stop nextjs-auth-2fa-demo",
+    "pm2:restart": "pm2 restart nextjs-auth-2fa-demo",
+    "pm2:logs": "pm2 logs nextjs-auth-2fa-demo",
+    "pm2:monit": "pm2 monit",
     "security:audit": "npm audit",
-    "security:check": "npm audit --audit-level moderate",
+    "security:audit:fix": "npm audit fix",
+    "test": "echo \"No tests specified\" && exit 0",
+    "clean": "rm -rf .next && rm -rf node_modules/.cache",
+    "postinstall": "prisma generate",
     "prepare": "husky install || true"
   },
   "dependencies": {
@@ -78,22 +90,36 @@
     "@types/nodemailer": "^6.4.15",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-security": "^3.0.1",
     "tailwindcss": "^3.4.1",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",
     "prisma": "^5.15.0",
     "prettier": "^3.3.2",
+    "prettier-plugin-tailwindcss": "^0.6.5",
     "husky": "^9.0.11",
     "lint-staged": "^15.2.7",
+    "@next/bundle-analyzer": "^14.2.5",
     "tsx": "^4.16.0"
   },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx}": [
+    "*.{js,jsx,ts,tsx}": [
       "eslint --fix",
       "prettier --write"
     ],
-    "*.{json,css,md}": [
+    "*.{json,md,yml,yaml}": [
       "prettier --write"
     ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "npm run type-check"
+    }
   }
 }
