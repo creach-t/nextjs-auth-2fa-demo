@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  twoFACodes TwoFACode[]
+  sessions   Session[]
+  
+  @@map("users")
+}
+
+model TwoFACode {
+  id        String   @id @default(cuid())
+  userId    String
+  code      String
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("two_fa_codes")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  token        String   @unique
+  refreshToken String?  @unique
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Additional session info
+  ipAddress    String?
+  userAgent    String?
+  isActive     Boolean  @default(true)
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("sessions")
+}
+
+model RateLimit {
+  id         String   @id @default(cuid())
+  identifier String   // IP address or user ID
+  action     String   // login, register, 2fa, etc.
+  attempts   Int      @default(1)
+  resetTime  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  @@unique([identifier, action])
+  @@map("rate_limits")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String   // login, logout, register, 2fa_send, 2fa_verify, etc.
+  details   String?  // JSON string with additional details
+  ipAddress String?
+  userAgent String?
+  success   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  
+  @@map("audit_logs")
+}
