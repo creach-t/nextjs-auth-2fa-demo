@@ -1,15 +1,57 @@
 {
   "name": "nextjs-auth-2fa-demo",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
+  "description": "Démonstration complète d'un système d'authentification Next.js avec authentification à deux facteurs (A2F) par email",
+  "keywords": [
+    "nextjs",
+    "authentication",
+    "2fa",
+    "two-factor-authentication",
+    "security",
+    "typescript",
+    "tailwindcss",
+    "prisma",
+    "jwt",
+    "email-verification"
+  ],
+  "author": {
+    "name": "CREACH-T",
+    "url": "https://github.com/creach-t"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/creach-t/nextjs-auth-2fa-demo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/creach-t/nextjs-auth-2fa-demo/issues"
+  },
+  "homepage": "https://github.com/creach-t/nextjs-auth-2fa-demo#readme",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.17.0",
+    "npm": ">=9.0.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "db:generate": "prisma generate"
+    "db:migrate": "prisma migrate dev",
+    "db:reset": "prisma migrate reset",
+    "db:seed": "tsx prisma/seed.ts",
+    "clean": "rm -rf .next && rm -rf dist",
+    "analyze": "ANALYZE=true npm run build",
+    "security:audit": "npm audit",
+    "security:check": "npm audit --audit-level moderate",
+    "prepare": "husky install || true"
   },
   "dependencies": {
     "next": "14.2.5",
@@ -39,6 +81,19 @@
     "tailwindcss": "^3.4.1",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",
-    "prisma": "^5.15.0"
+    "prisma": "^5.15.0",
+    "prettier": "^3.3.2",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.7",
+    "tsx": "^4.16.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,md}": [
+      "prettier --write"
+    ]
   }
 }
