@@ -1,6 +1,7 @@
-import Link from 'next/link'
-import { Home, ArrowLeft, Search } from 'lucide-react'
+'use client'
 import { Button } from '@/components/ui/button'
+import { ArrowLeft, Home, Search } from 'lucide-react'
+import Link from 'next/link'
 
 export default function NotFound() {
   return (
@@ -25,15 +26,15 @@ export default function NotFound() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
             Page non trouvée
           </h1>
-          
+
           <p className="text-gray-600 dark:text-gray-300 mb-8">
-            Désolé, nous ne pouvons pas trouver la page que vous cherchez. 
+            Désolé, nous ne pouvons pas trouver la page que vous cherchez.
             Elle a peut-être été déplacée, supprimée ou n'existe pas.
           </p>
 
           {/* Action Buttons */}
           <div className="space-y-4">
-            <Button 
+            <Button
               asChild
               className="w-full"
             >
@@ -42,9 +43,9 @@ export default function NotFound() {
                 <span>Retour à l'accueil</span>
               </Link>
             </Button>
-            
-            <Button 
-              variant="outline" 
+
+            <Button
+              variant="outline"
               asChild
               className="w-full"
               onClick={() => window.history.back()}

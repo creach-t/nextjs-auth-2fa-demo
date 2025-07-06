@@ -1,23 +1,23 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import Link from 'next/link'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Shield, ArrowLeft, RotateCcw, Mail } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription, AlertIcon } from '@/components/ui/alert'
-import { verifyTwoFASchema, type VerifyTwoFAFormData } from '@/lib/validations'
+import { Button } from '@/components/ui/button'
 import { API_ROUTES } from '@/lib/constants'
+import { verifyTwoFASchema, type VerifyTwoFAFormData } from '@/lib/validations'
 import type { AuthResponse } from '@/types/auth'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { ArrowLeft, Mail, RotateCcw, Shield } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
+import { useForm } from 'react-hook-form'
 
 export default function VerifyTwoFAPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const email = searchParams.get('email') || ''
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
-  
+
   const [isLoading, setIsLoading] = useState(false)
   const [isResending, setIsResending] = useState(false)
   const [error, setError] = useState<string>('')
@@ -70,19 +70,19 @@ export default function VerifyTwoFAPage() {
   // Handle code input
   const handleCodeChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return // Only allow digits
-    
+
     const newCode = [...code]
     newCode[index] = value
     setCode(newCode)
-    
+
     // Update form value
     setValue('code', newCode.join(''))
-    
+
     // Auto-focus next input
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus()
     }
-    
+
     // Auto-submit when all fields are filled
     if (newCode.every(digit => digit) && newCode.join('').length === 6) {
       handleSubmit(onSubmit)()
@@ -100,15 +100,15 @@ export default function VerifyTwoFAPage() {
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault()
     const pastedText = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6)
-    
+
     if (pastedText.length === 6) {
       const newCode = pastedText.split('')
       setCode(newCode)
       setValue('code', pastedText)
-      
+
       // Focus last input
       inputRefs.current[5]?.focus()
-      
+
       // Auto-submit
       setTimeout(() => {
         handleSubmit(onSubmit)()
@@ -127,6 +127,7 @@ export default function VerifyTwoFAPage() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           email,
           code: data.code,
@@ -146,8 +147,8 @@ export default function VerifyTwoFAPage() {
 
       setSuccess('Vérification réussie ! Redirection...')
       setTimeout(() => {
-        router.push(callbackUrl)
-      }, 1000)
+        window.location.href = callbackUrl
+      }, 500)
     } catch (error) {
       console.error('2FA verification error:', error)
       setError('Une erreur est survenue. Veuillez réessayer.')
@@ -273,7 +274,6 @@ export default function VerifyTwoFAPage() {
           {/* Submit Button */}
           <Button
             type="submit"
-            loading={isLoading}
             disabled={code.join('').length !== 6 || timeRemaining === 0}
             className="btn-primary"
           >
@@ -289,14 +289,12 @@ export default function VerifyTwoFAPage() {
           <Button
             variant="outline"
             onClick={handleResendCode}
-            loading={isResending}
             disabled={timeRemaining > 240} // Can resend after 1 minute
             className="w-full"
           >
             <RotateCcw className="w-4 h-4 mr-2" />
             {isResending ? 'Envoi...' : 'Renvoyer le code'}
           </Button>
-        </div>
 
         {/* Back to Login */}
         <div className="mt-6 text-center">
@@ -310,5 +308,6 @@ export default function VerifyTwoFAPage() {
         </div>
       </div>
     </div>
+  </div>
   )
 }

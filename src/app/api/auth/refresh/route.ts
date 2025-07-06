@@ -8,11 +8,11 @@ import { MESSAGES, HTTP_STATUS } from '@/lib/constants'
 
 export const POST = async (request: NextRequest) => {
   const clientInfo = ApiHelpers.getClientInfo(request)
-  
+
   try {
     // Get refresh token from cookies
     const refreshToken = request.cookies.get('refresh-token')?.value
-    
+
     if (!refreshToken) {
       throw new AuthenticationError(
         'Token de rafraîchissement manquant',
@@ -46,7 +46,7 @@ export const POST = async (request: NextRequest) => {
 
     // Refresh the access token
     const refreshResult = await AuthService.refreshAccessToken(refreshToken)
-    
+
     if (!refreshResult) {
       // Log failed refresh attempt
       await SecurityService.logSecurityEvent('invalid_token', {

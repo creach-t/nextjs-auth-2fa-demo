@@ -125,7 +125,7 @@ export default function DashboardPage() {
               <Button
                 variant="destructive"
                 onClick={handleLogout}
-                loading={isLoggingOut}
+                disabled={isLoggingOut}
                 className="flex items-center space-x-2"
               >
                 <LogOut className="w-4 h-4" />
@@ -234,8 +234,8 @@ export default function DashboardPage() {
                       Membre depuis
                     </dt>
                     <dd className="text-sm font-medium text-gray-900 dark:text-white">
-                      {userProfile?.user.createdAt ? 
-                        formatDate(new Date(userProfile.user.createdAt)) : 
+                      {userProfile?.user.createdAt ?
+                        formatDate(new Date(userProfile.user.createdAt)) :
                         'Aujourd\'hui'
                       }
                     </dd>
@@ -274,8 +274,8 @@ export default function DashboardPage() {
                   Date de création
                 </label>
                 <p className="mt-1 text-sm text-gray-900 dark:text-white">
-                  {userProfile?.user.createdAt ? 
-                    formatDate(new Date(userProfile.user.createdAt)) : 
+                  {userProfile?.user.createdAt ?
+                    formatDate(new Date(userProfile.user.createdAt)) :
                     'Inconnue'
                   }
                 </p>
@@ -285,8 +285,8 @@ export default function DashboardPage() {
                   Dernière mise à jour
                 </label>
                 <p className="mt-1 text-sm text-gray-900 dark:text-white">
-                  {userProfile?.user.updatedAt ? 
-                    formatDate(new Date(userProfile.user.updatedAt)) : 
+                  {userProfile?.user.updatedAt ?
+                    formatDate(new Date(userProfile.user.updatedAt)) :
                     'Inconnue'
                   }
                 </p>
@@ -318,7 +318,7 @@ export default function DashboardPage() {
                   Activé
                 </span>
               </div>
-              
+
               <div className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                 <div className="flex items-center">
                   <Lock className="h-5 w-5 text-blue-600 mr-3" />

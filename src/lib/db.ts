@@ -1,20 +1,25 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from "@prisma/client";
 
 // Global declaration for TypeScript
 declare global {
-  var prisma: PrismaClient | undefined
+  var prisma: PrismaClient | undefined;
 }
 
 // Prevent multiple instances of Prisma Client in development
-const prisma = globalThis.prisma || new PrismaClient({
-  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-})
+const prisma =
+  globalThis.prisma ||
+  new PrismaClient({
+    log:
+      process.env.NODE_ENV === "development"
+        ? ["query", "error", "warn"]
+        : ["error"],
+  });
 
-if (process.env.NODE_ENV !== 'production') {
-  globalThis.prisma = prisma
+if (process.env.NODE_ENV !== "production") {
+  globalThis.prisma = prisma;
 }
 
-export { prisma }
+export { prisma };
 
 // Database utility functions
 export class DatabaseService {
@@ -28,8 +33,8 @@ export class DatabaseService {
           lt: new Date(),
         },
       },
-    })
-    return result.count
+    });
+    return result.count;
   }
 
   /**
@@ -42,8 +47,8 @@ export class DatabaseService {
           lt: new Date(),
         },
       },
-    })
-    return result.count
+    });
+    return result.count;
   }
 
   /**
@@ -56,16 +61,16 @@ export class DatabaseService {
           lt: new Date(),
         },
       },
-    })
-    return result.count
+    });
+    return result.count;
   }
 
   /**
    * Clean up old audit logs (older than 90 days)
    */
   static async cleanupOldAuditLogs(): Promise<number> {
-    const ninetyDaysAgo = new Date()
-    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
+    const ninetyDaysAgo = new Date();
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
 
     const result = await prisma.auditLog.deleteMany({
       where: {
@@ -73,32 +78,33 @@ export class DatabaseService {
           lt: ninetyDaysAgo,
         },
       },
-    })
-    return result.count
+    });
+    return result.count;
   }
 
   /**
    * Perform all cleanup operations
    */
   static async performMaintenance(): Promise<{
-    expiredCodes: number
-    expiredSessions: number
-    expiredRateLimits: number
-    oldAuditLogs: number
+    expiredCodes: number;
+    expiredSessions: number;
+    expiredRateLimits: number;
+    oldAuditLogs: number;
   }> {
-    const [expiredCodes, expiredSessions, expiredRateLimits, oldAuditLogs] = await Promise.all([
-      this.cleanupExpiredCodes(),
-      this.cleanupExpiredSessions(),
-      this.cleanupExpiredRateLimits(),
-      this.cleanupOldAuditLogs(),
-    ])
+    const [expiredCodes, expiredSessions, expiredRateLimits, oldAuditLogs] =
+      await Promise.all([
+        this.cleanupExpiredCodes(),
+        this.cleanupExpiredSessions(),
+        this.cleanupExpiredRateLimits(),
+        this.cleanupOldAuditLogs(),
+      ]);
 
     return {
       expiredCodes,
       expiredSessions,
       expiredRateLimits,
       oldAuditLogs,
-    }
+    };
   }
 
   /**
@@ -115,11 +121,11 @@ export class DatabaseService {
             },
           },
           orderBy: {
-            createdAt: 'desc',
+            createdAt: "desc",
           },
         },
       },
-    })
+    });
   }
 
   /**
@@ -135,9 +141,9 @@ export class DatabaseService {
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
-    })
+    });
   }
 
   /**
@@ -151,12 +157,12 @@ export class DatabaseService {
     userAgent,
     success = true,
   }: {
-    userId?: string
-    action: string
-    details?: object
-    ipAddress?: string
-    userAgent?: string
-    success?: boolean
+    userId?: string;
+    action: string;
+    details?: object;
+    ipAddress?: string;
+    userAgent?: string;
+    success?: boolean;
   }) {
     return await prisma.auditLog.create({
       data: {
@@ -167,7 +173,7 @@ export class DatabaseService {
         userAgent,
         success,
       },
-    })
+    });
   }
 
   /**
@@ -179,8 +185,8 @@ export class DatabaseService {
     maxAttempts: number = 5,
     windowMinutes: number = 15
   ): Promise<{ allowed: boolean; attempts: number; resetTime: Date }> {
-    const now = new Date()
-    const windowStart = new Date(now.getTime() - windowMinutes * 60 * 1000)
+    const now = new Date();
+    const windowStart = new Date(now.getTime() - windowMinutes * 60 * 1000);
 
     // Clean up expired rate limits first
     await prisma.rateLimit.deleteMany({
@@ -191,7 +197,7 @@ export class DatabaseService {
           lt: now,
         },
       },
-    })
+    });
 
     // Get or create rate limit record
     const rateLimit = await prisma.rateLimit.upsert({
@@ -213,13 +219,13 @@ export class DatabaseService {
         attempts: 1,
         resetTime: new Date(now.getTime() + windowMinutes * 60 * 1000),
       },
-    })
+    });
 
     return {
       allowed: rateLimit.attempts <= maxAttempts,
       attempts: rateLimit.attempts,
       resetTime: rateLimit.resetTime,
-    }
+    };
   }
 
   /**
@@ -231,11 +237,6 @@ export class DatabaseService {
         identifier,
         action,
       },
-    })
+    });
   }
 }
-
-// Graceful shutdown
-process.on('beforeExit', async () => {
-  await prisma.$disconnect()
-})

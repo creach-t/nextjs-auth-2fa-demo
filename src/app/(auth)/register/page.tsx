@@ -15,7 +15,7 @@ import type { AuthResponse } from '@/types/auth'
 
 export default function RegisterPage() {
   const router = useRouter()
-  
+
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -47,6 +47,7 @@ export default function RegisterPage() {
         body: JSON.stringify({
           email: data.email,
           password: data.password,
+          confirmPassword: data.confirmPassword,
           name: data.name,
         }),
       })
@@ -73,7 +74,7 @@ export default function RegisterPage() {
   // Password strength indicator
   const getPasswordStrength = (password: string) => {
     if (!password) return { strength: 0, label: '', color: '' }
-    
+
     let strength = 0
     const checks = [
       password.length >= 8,
@@ -82,9 +83,9 @@ export default function RegisterPage() {
       /\d/.test(password),
       /[^\w\s]/.test(password),
     ]
-    
+
     strength = checks.filter(Boolean).length
-    
+
     const levels = [
       { label: 'Très faible', color: 'bg-red-500' },
       { label: 'Faible', color: 'bg-red-400' },
@@ -92,7 +93,7 @@ export default function RegisterPage() {
       { label: 'Fort', color: 'bg-green-500' },
       { label: 'Très fort', color: 'bg-green-600' },
     ]
-    
+
     return {
       strength,
       label: levels[strength - 1]?.label || '',
@@ -192,7 +193,7 @@ export default function RegisterPage() {
                 )}
               </button>
             </div>
-            
+
             {/* Password Strength Indicator */}
             {password && (
               <div className="mt-2">
@@ -279,7 +280,7 @@ export default function RegisterPage() {
           {/* Submit Button */}
           <Button
             type="submit"
-            loading={isLoading}
+            disabled={isLoading}
             className="btn-primary"
           >
             {isLoading ? 'Création...' : 'Créer mon compte'}

@@ -1,23 +1,23 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import Link from 'next/link'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Eye, EyeOff, LogIn, Mail, Lock } from 'lucide-react'
+import { Alert, AlertDescription, AlertIcon } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Alert, AlertDescription, AlertIcon } from '@/components/ui/alert'
-import { loginSchema, type LoginFormData } from '@/lib/validations'
 import { API_ROUTES } from '@/lib/constants'
+import { loginSchema, type LoginFormData } from '@/lib/validations'
 import type { AuthResponse } from '@/types/auth'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Eye, EyeOff, Lock, LogIn, Mail } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 
 export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
-  
+
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string>('')
@@ -52,7 +52,7 @@ export default function LoginPage() {
         return
       }
 
-      if (result.requires2FA) {
+      if (result.data?.requires2FA) {
         // Redirect to 2FA verification
         setSuccess('Code de vérification envoyé ! Vérifiez votre email.')
         setTimeout(() => {
@@ -172,7 +172,7 @@ export default function LoginPage() {
           {/* Submit Button */}
           <Button
             type="submit"
-            loading={isLoading}
+            disabled={isLoading}
             className="btn-primary"
           >
             {isLoading ? 'Connexion...' : 'Se connecter'}

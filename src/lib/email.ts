@@ -1,19 +1,19 @@
-import nodemailer from 'nodemailer'
-import { ENV, EMAIL_CONSTANTS } from './constants'
-import type { EmailOptions } from '@/types/api'
+import type { EmailOptions } from "@/types/api";
+import nodemailer from "nodemailer";
+import { EMAIL_CONSTANTS, ENV } from "./constants";
 
 /**
  * Email service for sending 2FA codes and other notifications
  */
 export class EmailService {
-  private static transporter: nodemailer.Transporter | null = null
+  private static transporter: nodemailer.Transporter | null = null;
 
   /**
    * Initialize email transporter
    */
   private static getTransporter(): nodemailer.Transporter {
     if (!this.transporter) {
-      this.transporter = nodemailer.createTransporter({
+      this.transporter = nodemailer.createTransport({
         host: ENV.EMAIL_HOST,
         port: ENV.EMAIL_PORT,
         secure: ENV.EMAIL_PORT === 465, // true for 465, false for other ports
@@ -22,15 +22,15 @@ export class EmailService {
           pass: ENV.EMAIL_PASS,
         },
         // For Gmail, you might need these additional options
-        ...(ENV.EMAIL_HOST === 'smtp.gmail.com' && {
-          service: 'gmail',
+        ...(ENV.EMAIL_HOST === "smtp.gmail.com" && {
+          service: "gmail",
           tls: {
             rejectUnauthorized: false,
           },
         }),
-      })
+      });
     }
-    return this.transporter
+    return this.transporter;
   }
 
   /**
@@ -38,29 +38,33 @@ export class EmailService {
    */
   static async sendEmail(options: EmailOptions): Promise<boolean> {
     try {
-      const transporter = this.getTransporter()
-      
+      const transporter = this.getTransporter();
+
       const mailOptions = {
         from: `${EMAIL_CONSTANTS.FROM_NAME} <${ENV.EMAIL_FROM}>`,
         to: options.to,
         subject: options.subject,
         html: options.html,
         text: options.text,
-      }
+      };
 
-      const result = await transporter.sendMail(mailOptions)
-      console.log('Email sent successfully:', result.messageId)
-      return true
+      const result = await transporter.sendMail(mailOptions);
+      console.log("Email sent successfully:", result.messageId);
+      return true;
     } catch (error) {
-      console.error('Email sending failed:', error)
-      return false
+      console.error("Email sending failed:", error);
+      return false;
     }
   }
 
   /**
    * Send 2FA verification code
    */
-  static async send2FACode(email: string, code: string, expiryMinutes: number = 5): Promise<boolean> {
+  static async send2FACode(
+    email: string,
+    code: string,
+    expiryMinutes: number = 5
+  ): Promise<boolean> {
     const html = `
       <!DOCTYPE html>
       <html lang="fr">
@@ -127,16 +131,16 @@ export class EmailService {
           <h1>🔐 Code de Vérification</h1>
           <p>Next.js Auth 2FA Demo</p>
         </div>
-        
+
         <div class="content">
           <p>Bonjour,</p>
-          
+
           <p>Voici votre code de vérification à deux facteurs :</p>
-          
+
           <div class="code-container">
             <div class="code">${code}</div>
           </div>
-          
+
           <div class="warning">
             <strong>⚠️ Important :</strong>
             <ul>
@@ -145,47 +149,50 @@ export class EmailService {
               <li>Si vous n'avez pas demandé ce code, ignorez cet email</li>
             </ul>
           </div>
-          
+
           <p>Si vous rencontrez des difficultés, n'hésitez pas à nous contacter.</p>
-          
+
           <p>Cordialement,<br>L'équipe Next.js Auth Demo</p>
         </div>
-        
+
         <div class="footer">
           <p>Cet email a été envoyé automatiquement, merci de ne pas y répondre.</p>
           <p>© 2025 Next.js Auth 2FA Demo. Tous droits réservés.</p>
         </div>
       </body>
       </html>
-    `
+    `;
 
     const text = `
       Code de Vérification - Next.js Auth Demo
-      
+
       Votre code de vérification : ${code}
-      
+
       Ce code expire dans ${expiryMinutes} minutes.
       Ne partagez jamais ce code avec qui que ce soit.
-      
+
       Si vous n'avez pas demandé ce code, ignorez cet email.
-      
+
       L'équipe Next.js Auth Demo
-    `
+    `;
 
     return this.sendEmail({
       to: email,
       subject: EMAIL_CONSTANTS.SUBJECTS.TWOFA_CODE,
       html,
       text,
-    })
+    });
   }
 
   /**
    * Send welcome email
    */
-  static async sendWelcomeEmail(email: string, name?: string): Promise<boolean> {
-    const displayName = name || 'Utilisateur'
-    
+  static async sendWelcomeEmail(
+    email: string,
+    name?: string
+  ): Promise<boolean> {
+    const displayName = name || "Utilisateur";
+
     const html = `
       <!DOCTYPE html>
       <html lang="fr">
@@ -199,10 +206,10 @@ export class EmailService {
           <h1>🎉 Bienvenue ${displayName} !</h1>
           <p>Votre compte a été créé avec succès</p>
         </div>
-        
+
         <div style="padding: 30px; background: #f8f9fa; margin-top: 20px; border-radius: 10px;">
           <p>Félicitations ! Votre compte Next.js Auth Demo a été créé avec succès.</p>
-          
+
           <p><strong>Fonctionnalités disponibles :</strong></p>
           <ul>
             <li>✅ Authentification sécurisée</li>
@@ -210,35 +217,35 @@ export class EmailService {
             <li>✅ Gestion de profil</li>
             <li>✅ Sécurité avancée</li>
           </ul>
-          
+
           <p>Vous pouvez maintenant vous connecter et explorer toutes les fonctionnalités.</p>
-          
+
           <p>Merci de nous faire confiance !</p>
-          
+
           <p>Cordialement,<br>L'équipe Next.js Auth Demo</p>
         </div>
       </body>
       </html>
-    `
+    `;
 
     const text = `
       Bienvenue ${displayName} !
-      
+
       Votre compte Next.js Auth Demo a été créé avec succès.
-      
+
       Vous pouvez maintenant vous connecter et explorer toutes les fonctionnalités.
-      
+
       Merci de nous faire confiance !
-      
+
       L'équipe Next.js Auth Demo
-    `
+    `;
 
     return this.sendEmail({
       to: email,
       subject: EMAIL_CONSTANTS.SUBJECTS.WELCOME,
       html,
       text,
-    })
+    });
   }
 
   /**
@@ -246,13 +253,13 @@ export class EmailService {
    */
   static async testConnection(): Promise<boolean> {
     try {
-      const transporter = this.getTransporter()
-      await transporter.verify()
-      console.log('Email configuration is valid')
-      return true
+      const transporter = this.getTransporter();
+      await transporter.verify();
+      console.log("Email configuration is valid");
+      return true;
     } catch (error) {
-      console.error('Email configuration error:', error)
-      return false
+      console.error("Email configuration error:", error);
+      return false;
     }
   }
 }
