@@ -28,11 +28,25 @@ export function ThemeProvider({
   storageKey = 'ui-theme',
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage?.getItem(storageKey) as Theme) || defaultTheme
-  )
+  const [theme, setTheme] = useState<Theme>(defaultTheme)
+  const [mounted, setMounted] = useState(false)
+
+  // Effet pour charger le thème depuis localStorage après le montage
+  useEffect(() => {
+    setMounted(true)
+    try {
+      const storedTheme = localStorage?.getItem(storageKey) as Theme
+      if (storedTheme) {
+        setTheme(storedTheme)
+      }
+    } catch (error) {
+      console.warn('Erreur lors du chargement du thème:', error)
+    }
+  }, [storageKey])
 
   useEffect(() => {
+    if (!mounted) return
+
     const root = window.document.documentElement
 
     root.classList.remove('light', 'dark')
@@ -48,14 +62,29 @@ export function ThemeProvider({
     }
 
     root.classList.add(theme)
-  }, [theme])
+  }, [theme, mounted])
 
   const value = {
     theme,
     setTheme: (theme: Theme) => {
-      localStorage?.setItem(storageKey, theme)
+      if (mounted) {
+        try {
+          localStorage?.setItem(storageKey, theme)
+        } catch (error) {
+          console.warn('Erreur lors de la sauvegarde du thème:', error)
+        }
+      }
       setTheme(theme)
     },
+  }
+
+  // Prévenir l'hydration mismatch en ne rendant pas le contenu avant le montage
+  if (!mounted) {
+    return (
+      <ThemeProviderContext.Provider {...props} value={value}>
+        {children}
+      </ThemeProviderContext.Provider>
+    )
   }
 
   return (

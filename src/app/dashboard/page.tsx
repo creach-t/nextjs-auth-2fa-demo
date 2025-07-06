@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { User, Shield, Clock, Activity, LogOut, Settings, Mail } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription, AlertIcon } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
 import { API_ROUTES } from '@/lib/constants'
 import { formatDate } from '@/lib/utils'
 import type { User as UserType } from '@/types/auth'
+import { Activity, Briefcase, Clock, ExternalLink, Lock, LogOut, Mail, Shield } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 interface UserProfile {
   user: UserType & {
@@ -115,14 +115,6 @@ export default function DashboardPage() {
             </div>
             <div className="flex items-center space-x-4">
               <Button
-                variant="outline"
-                onClick={() => router.push('/profile')}
-                className="flex items-center space-x-2"
-              >
-                <Settings className="w-4 h-4" />
-                <span>Paramètres</span>
-              </Button>
-              <Button
                 variant="destructive"
                 onClick={handleLogout}
                 disabled={isLoggingOut}
@@ -154,6 +146,28 @@ export default function DashboardPage() {
           <p className="text-gray-600 dark:text-gray-300">
             Votre compte est sécurisé avec l'authentification à deux facteurs
           </p>
+        </div>
+
+        {/* Encart Professionnel */}
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 mb-8 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <div className="flex items-center mb-3">
+                <Briefcase className="w-5 h-5 mr-2" />
+                <span className="font-medium">Théo Créac'h - Développeur Full Stack</span>
+              </div>
+              <p className="text-blue-100 mb-4">
+                Tu as aimé cette démo d'authentification sécurisée ? Découvre mes autres projets et recrute un développeur passionné !
+              </p>
+            </div>
+            <Button
+              onClick={() => window.open('https://creachtheo.fr', '_blank')}
+              className="bg-white text-blue-600 hover:bg-gray-100 ml-4"
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Mon Portfolio
+            </Button>
+          </div>
         </div>
 
         {/* Stats Grid */}
@@ -295,22 +309,19 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Security Information */}
+        {/* Security Information - Simplifiée */}
         <div className="bg-white dark:bg-gray-800 shadow rounded-lg">
           <div className="px-4 py-5 sm:p-6">
             <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">
               Sécurité du compte
             </h3>
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
                 <div className="flex items-center">
                   <Shield className="h-5 w-5 text-green-600 mr-3" />
                   <div>
                     <p className="text-sm font-medium text-green-800 dark:text-green-200">
-                      Authentification à deux facteurs
-                    </p>
-                    <p className="text-xs text-green-600 dark:text-green-300">
-                      Votre compte est protégé par 2FA par email
+                      Authentification 2FA par email
                     </p>
                   </div>
                 </div>
@@ -324,31 +335,11 @@ export default function DashboardPage() {
                   <Lock className="h-5 w-5 text-blue-600 mr-3" />
                   <div>
                     <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                      Mot de passe sécurisé
-                    </p>
-                    <p className="text-xs text-blue-600 dark:text-blue-300">
-                      Hashage bcrypt avec salt
+                      Sessions sécurisées JWT
                     </p>
                   </div>
                 </div>
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100">
-                  Sécurisé
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                <div className="flex items-center">
-                  <Activity className="h-5 w-5 text-purple-600 mr-3" />
-                  <div>
-                    <p className="text-sm font-medium text-purple-800 dark:text-purple-200">
-                      Sessions sécurisées
-                    </p>
-                    <p className="text-xs text-purple-600 dark:text-purple-300">
-                      JWT avec refresh token
-                    </p>
-                  </div>
-                </div>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100">
                   Actif
                 </span>
               </div>

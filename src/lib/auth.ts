@@ -79,8 +79,10 @@ export class AuthService {
 
       return decoded;
     } catch (error) {
-      console.log("❌ JWT verification error:", error.message);
-      console.log("❌ Error name:", error.name);
+      console.log("❌ JWT verification error:", (error as Error).message);
+      if (typeof error === "object" && error !== null && "name" in error) {
+        console.log("❌ Error name:", (error as { name: string }).name);
+      }
       return null;
     }
   }
